@@ -3,9 +3,11 @@ package com.jesse.taskapp.core.data.repository
 import com.jesse.taskapp.core.data.local.TaskDao
 import com.jesse.taskapp.core.data.local.TaskEntity
 import com.jesse.taskapp.core.data.mapper.toTask
+import com.jesse.taskapp.core.di.Dispatcher
+import com.jesse.taskapp.core.di.TaskAppDispatchers
 import com.jesse.taskapp.core.domain.model.Task
 import com.jesse.taskapp.core.domain.repository.TaskRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -14,10 +16,14 @@ import javax.inject.Inject
 /**
  * [TaskRepository] backed by Room.
  *
+ * Writes run on [ioDispatcher]. Tests pass a test dispatcher instead of [kotlinx.coroutines.Dispatchers.IO].
+ *
  * @param taskDao SQL access to the tasks table.
+ * @param ioDispatcher dispatcher for create, update, and delete.
  */
 class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao,
+    @param:Dispatcher(TaskAppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : TaskRepository {
     /**
      * Observes tasks for a search string and creation window.
@@ -58,7 +64,7 @@ class TaskRepositoryImpl @Inject constructor(
      * @return the generated id.
      */
     override suspend fun create(title: String, description: String, nowMillis: Long): Long {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             // Created and edited start equal. A later update changes only the edited time.
             val entity = TaskEntity(
                 title = title,
@@ -85,7 +91,7 @@ class TaskRepositoryImpl @Inject constructor(
         description: String,
         nowMillis: Long,
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val rows = taskDao.update(
                 id = id,
                 title = title,
@@ -102,7 +108,7 @@ class TaskRepositoryImpl @Inject constructor(
      * @param ids primary keys to remove.
      */
     override suspend fun delete(ids: Set<Long>) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             // An empty IN () is invalid SQL. Callers avoid that; this is a second guard.
             if (ids.isNotEmpty()) {
                 taskDao.deleteByIds(ids)

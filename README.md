@@ -14,6 +14,8 @@ Dependencies point toward `core`. `core` does not depend on a feature, and no fe
 
 Room, the task table, and `TaskRepository` live in `core`. The list, detail, and form features all store the same task. Putting the repository in one feature would force the other features to depend on it.
 
+`TaskRepositoryImpl` takes an IO `CoroutineDispatcher` instead of calling `Dispatchers.IO`. `CoroutineModule` provides that dispatcher, the default dispatcher, and an application `CoroutineScope`. Tests pass a test dispatcher so writes do not depend on the real IO pool.
+
 Each feature has its own use cases and its own presentation types:
 
 - `feature/tasklist` shows tasks, searches them, filters them by the day they were created, and deletes a selection.
@@ -37,7 +39,7 @@ com.jesse.taskapp
 │   └── TaskNavHost.kt
 ├── core
 │   ├── common          clock and date formatting
-│   ├── di              Hilt modules
+│   ├── di              Hilt modules for the database, clock, and coroutine dispatchers
 │   ├── domain          Task and TaskRepository
 │   └── data            Room entity, DAO, database, repository
 ├── feature
@@ -91,4 +93,4 @@ Instrumentation tests need a started emulator or a connected device:
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-Unit tests cover use cases and ViewModels, including one-shot errors that must not replay. The Room tests cover insert, update, search, the creation-day window, and bulk delete. Compose tests open the list, detail, and form screens with state passed in, without a ViewModel. One Hilt test creates a task and checks that the list shows it.
+Unit tests cover use cases, ViewModels, and the repository writes that must run on the injected dispatcher, including one-shot errors that must not replay. The Room tests construct the repository with a test dispatcher and cover insert, update, search, the creation-day window, and bulk delete. Compose tests open the list, detail, and form screens with state passed in, without a ViewModel. One Hilt test creates a task and checks that the list shows it.

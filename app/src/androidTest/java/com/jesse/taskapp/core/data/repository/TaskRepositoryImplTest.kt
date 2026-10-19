@@ -6,7 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jesse.taskapp.core.data.local.TaskDatabase
 import com.jesse.taskapp.core.domain.model.Task
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -19,6 +21,7 @@ import org.junit.runner.RunWith
 /**
  * Room-backed tests for [TaskRepositoryImpl].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class TaskRepositoryImplTest {
     private lateinit var database: TaskDatabase
@@ -31,7 +34,8 @@ class TaskRepositoryImplTest {
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         database = Room.inMemoryDatabaseBuilder(context, TaskDatabase::class.java).build()
-        repository = TaskRepositoryImpl(database.taskDao())
+        // A test dispatcher stands in for the injected IO dispatcher, so these tests do not use Dispatchers.IO.
+        repository = TaskRepositoryImpl(database.taskDao(), UnconfinedTestDispatcher())
     }
 
     /**
