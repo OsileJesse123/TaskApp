@@ -11,6 +11,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
@@ -54,12 +55,16 @@ object DatabaseModule {
      * Binds the Room repository as the app-wide [TaskRepository].
      *
      * @param taskDao task DAO.
+     * @param ioDispatcher dispatcher for repository writes.
      * @return repository shared by every feature use case.
      */
     @Provides
     @Singleton
-    fun provideTaskRepository(taskDao: TaskDao): TaskRepository {
-        return TaskRepositoryImpl(taskDao)
+    fun provideTaskRepository(
+        taskDao: TaskDao,
+        @Dispatcher(TaskAppDispatchers.IO) ioDispatcher: CoroutineDispatcher,
+    ): TaskRepository {
+        return TaskRepositoryImpl(taskDao, ioDispatcher)
     }
 
     private const val DATABASE_NAME = "tasks.db"

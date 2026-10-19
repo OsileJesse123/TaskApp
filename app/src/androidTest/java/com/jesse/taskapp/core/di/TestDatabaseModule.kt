@@ -11,6 +11,7 @@ import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
@@ -49,9 +50,13 @@ object TestDatabaseModule {
      * Uses the same repository implementation as production, pointed at the in-memory database.
      *
      * @param taskDao in-memory DAO.
+     * @param ioDispatcher production IO dispatcher. This module replaces only the database.
      * @return repository injected into feature use cases during the test.
      */
     @Provides
     @Singleton
-    fun provideTaskRepository(taskDao: TaskDao): TaskRepository = TaskRepositoryImpl(taskDao)
+    fun provideTaskRepository(
+        taskDao: TaskDao,
+        @Dispatcher(TaskAppDispatchers.IO) ioDispatcher: CoroutineDispatcher,
+    ): TaskRepository = TaskRepositoryImpl(taskDao, ioDispatcher)
 }
