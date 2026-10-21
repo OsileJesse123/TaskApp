@@ -3,6 +3,7 @@ package com.jesse.taskapp.feature.taskform.presentation
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.jesse.taskapp.FakeTaskRepository
+import com.jesse.taskapp.core.navigation.TASK_ID_KEY
 import com.jesse.taskapp.FakeTimeProvider
 import com.jesse.taskapp.MainDispatcherRule
 import com.jesse.taskapp.feature.taskform.domain.CreateTaskUseCase
@@ -37,7 +38,7 @@ class TaskFormViewModelTest {
      * @return the ViewModel under test.
      */
     private fun viewModel(id: Long?): TaskFormViewModel {
-        val handle = if (id == null) SavedStateHandle() else SavedStateHandle(mapOf("taskId" to id))
+        val handle = if (id == null) SavedStateHandle() else SavedStateHandle(mapOf(TASK_ID_KEY to id))
         return TaskFormViewModel(
             savedStateHandle = handle,
             loadTask = LoadTaskUseCase(repository),

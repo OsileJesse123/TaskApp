@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jesse.taskapp.core.common.TaskDateFormatter
 import com.jesse.taskapp.core.domain.model.Task
+import com.jesse.taskapp.core.navigation.TASK_ID_KEY
 import com.jesse.taskapp.feature.taskdetail.domain.DeleteTaskUseCase
 import com.jesse.taskapp.feature.taskdetail.domain.ObserveTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +26,7 @@ import javax.inject.Inject
  *
  * The id comes from navigation state, not from a passed task object.
  *
- * @param savedStateHandle navigation arguments. The detail route stores `taskId`.
+ * @param savedStateHandle navigation arguments. The detail route stores [TASK_ID_KEY].
  * @param observeTask loads the row for that id.
  * @param deleteTask deletes the row after confirmation.
  * @param dateFormatter formats the created and edited times.
@@ -125,9 +126,6 @@ class TaskDetailViewModel @Inject constructor(
     }
 
     private companion object {
-        // Same key as TaskDetailDestination.taskId. Read as a raw key so this ViewModel does not
-        // depend on the navigation graph type.
-        const val TASK_ID_KEY: String = "taskId"
         const val MISSING_TASK_ID: Long = -1L
         const val STOP_TIMEOUT_MILLIS: Long = 5_000
     }

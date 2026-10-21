@@ -1,5 +1,6 @@
 package com.jesse.taskapp.navigation
 
+import com.jesse.taskapp.core.navigation.TASK_ID_KEY
 import kotlinx.serialization.Serializable
 
 /**
@@ -11,7 +12,7 @@ data object TaskListDestination
 /**
  * Detail for one task.
  *
- * @property taskId id to load from local storage. The task object is not an argument.
+ * @property taskId id to load from local storage. The property name is [TASK_ID_KEY]. The task object is not an argument.
  */
 @Serializable
 data class TaskDetailDestination(
@@ -27,7 +28,7 @@ data object TaskCreateDestination
 /**
  * Form for an existing task.
  *
- * @property taskId id to load into the form.
+ * @property taskId id to load into the form. The property name is [TASK_ID_KEY].
  */
 @Serializable
 data class TaskEditDestination(
