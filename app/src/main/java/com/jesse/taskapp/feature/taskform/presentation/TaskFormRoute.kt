@@ -8,11 +8,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jesse.taskapp.R
+import com.jesse.taskapp.core.navigation.TASK_ID_KEY
 
 /**
  * Connects [TaskFormViewModel] to [TaskFormScreen].
  *
- * Create and edit share this route. The edit destination puts `taskId` in saved state; create
+ * Create and edit share this route. The edit destination puts [TASK_ID_KEY] in saved state; create
  * does not. The screen never receives a task object.
  *
  * @param onBack called when the user leaves the form.

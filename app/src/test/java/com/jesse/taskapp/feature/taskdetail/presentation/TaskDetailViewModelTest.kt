@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.jesse.taskapp.FakeTaskRepository
 import com.jesse.taskapp.MainDispatcherRule
 import com.jesse.taskapp.core.common.TaskDateFormatter
+import com.jesse.taskapp.core.navigation.TASK_ID_KEY
 import com.jesse.taskapp.feature.taskdetail.domain.DeleteTaskUseCase
 import com.jesse.taskapp.feature.taskdetail.domain.ObserveTaskUseCase
 import com.jesse.taskapp.sampleTask
@@ -34,7 +35,7 @@ class TaskDetailViewModelTest {
      * @return the ViewModel under test.
      */
     private fun viewModel(id: Long?): TaskDetailViewModel {
-        val handle = if (id == null) SavedStateHandle() else SavedStateHandle(mapOf("taskId" to id))
+        val handle = if (id == null) SavedStateHandle() else SavedStateHandle(mapOf(TASK_ID_KEY to id))
         return TaskDetailViewModel(
             savedStateHandle = handle,
             observeTask = ObserveTaskUseCase(repository),

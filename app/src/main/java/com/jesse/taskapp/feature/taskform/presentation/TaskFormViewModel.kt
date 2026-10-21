@@ -3,6 +3,7 @@ package com.jesse.taskapp.feature.taskform.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jesse.taskapp.core.navigation.TASK_ID_KEY
 import com.jesse.taskapp.feature.taskform.domain.CreateTaskUseCase
 import com.jesse.taskapp.feature.taskform.domain.LoadTaskUseCase
 import com.jesse.taskapp.feature.taskform.domain.TaskSaveResult
@@ -21,7 +22,7 @@ import javax.inject.Inject
 /**
  * State and one-shot events for creating or editing a task.
  *
- * Create has no `taskId` argument. Edit reads `taskId` from navigation and loads the row.
+ * Create has no [TASK_ID_KEY] argument. Edit reads [TASK_ID_KEY] from navigation and loads the row.
  *
  * @param savedStateHandle navigation arguments for the current form destination.
  * @param loadTask reads an existing task for edit mode.
@@ -35,7 +36,7 @@ class TaskFormViewModel @Inject constructor(
     private val createTask: CreateTaskUseCase,
     private val updateTask: UpdateTaskUseCase,
 ) : ViewModel() {
-    // Absent on the create route. Present on the edit route because the argument name is taskId.
+    // Absent on the create route. Present on the edit route under TASK_ID_KEY.
     private val taskId: Long? = savedStateHandle.get<Long>(TASK_ID_KEY)
 
     private val _uiState = MutableStateFlow(
@@ -154,9 +155,5 @@ class TaskFormViewModel @Inject constructor(
             }
             TaskSaveResult.Failed -> _events.emit(TaskFormEvent.ShowSaveError)
         }
-    }
-
-    private companion object {
-        const val TASK_ID_KEY: String = "taskId"
     }
 }
