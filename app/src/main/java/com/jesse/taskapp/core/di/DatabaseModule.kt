@@ -4,21 +4,19 @@ import android.content.Context
 import androidx.room.Room
 import com.jesse.taskapp.core.data.local.TaskDao
 import com.jesse.taskapp.core.data.local.TaskDatabase
-import com.jesse.taskapp.core.data.repository.TaskRepositoryImpl
-import com.jesse.taskapp.core.domain.repository.TaskRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
- * Provides the on-device task database and the repository that uses it.
+ * Provides the on-device task database.
  *
  * Instrumentation tests replace this module with an in-memory database so a test does not
- * keep tasks written by the previous run.
+ * keep tasks written by the previous run. The repository that uses the DAO is bound in
+ * [RepositoryModule].
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -49,22 +47,6 @@ object DatabaseModule {
     @Provides
     fun provideTaskDao(database: TaskDatabase): TaskDao {
         return database.taskDao()
-    }
-
-    /**
-     * Binds the Room repository as the app-wide [TaskRepository].
-     *
-     * @param taskDao task DAO.
-     * @param ioDispatcher dispatcher for repository writes.
-     * @return repository shared by every feature use case.
-     */
-    @Provides
-    @Singleton
-    fun provideTaskRepository(
-        taskDao: TaskDao,
-        @Dispatcher(TaskAppDispatchers.IO) ioDispatcher: CoroutineDispatcher,
-    ): TaskRepository {
-        return TaskRepositoryImpl(taskDao, ioDispatcher)
     }
 
     private const val DATABASE_NAME = "tasks.db"
