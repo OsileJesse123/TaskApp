@@ -4,20 +4,18 @@ import android.content.Context
 import androidx.room.Room
 import com.jesse.taskapp.core.data.local.TaskDao
 import com.jesse.taskapp.core.data.local.TaskDatabase
-import com.jesse.taskapp.core.data.repository.TaskRepositoryImpl
-import com.jesse.taskapp.core.domain.repository.TaskRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
  * Replaces [DatabaseModule] with an in-memory database for instrumentation tests.
  *
- * A file database would keep tasks from the previous test run.
+ * A file database would keep tasks from the previous test run. [RepositoryModule] stays
+ * installed and receives this DAO.
  */
 @Module
 @TestInstallIn(
@@ -45,18 +43,4 @@ object TestDatabaseModule {
      */
     @Provides
     fun provideTaskDao(database: TaskDatabase): TaskDao = database.taskDao()
-
-    /**
-     * Uses the same repository implementation as production, pointed at the in-memory database.
-     *
-     * @param taskDao in-memory DAO.
-     * @param ioDispatcher production IO dispatcher. This module replaces only the database.
-     * @return repository injected into feature use cases during the test.
-     */
-    @Provides
-    @Singleton
-    fun provideTaskRepository(
-        taskDao: TaskDao,
-        @Dispatcher(TaskAppDispatchers.IO) ioDispatcher: CoroutineDispatcher,
-    ): TaskRepository = TaskRepositoryImpl(taskDao, ioDispatcher)
 }
