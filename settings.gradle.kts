@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "TaskApp"
 include(":app")
- 
+include(":core")
