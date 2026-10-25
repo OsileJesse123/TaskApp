@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jesse.taskapp.R
+import com.jesse.taskapp.feature.taskdetail.R
 
 /**
  * Connects [TaskDetailViewModel] to [TaskDetailScreen].
