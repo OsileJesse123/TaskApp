@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +20,7 @@ import com.jesse.taskapp.feature.taskform.domain.TaskInputRules
 import com.jesse.taskapp.feature.taskform.domain.TitleError
 import com.jesse.taskapp.feature.taskform.presentation.TaskFormTags
 import com.jesse.taskapp.feature.taskform.presentation.TaskFormUiState
-import com.jesse.taskapp.ui.theme.TaskAppTheme
+import com.jesse.taskapp.ui.TaskAppTheme
 
 /**
  * Title, description, and save action.
