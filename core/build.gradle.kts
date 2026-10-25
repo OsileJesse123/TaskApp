@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jesse.core"
+    namespace = "com.jesse.taskapp.core"
     compileSdk {
         version = release(37)
     }
@@ -41,8 +41,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
 
-
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(platform(libs.androidx.compose.bom))
+
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 

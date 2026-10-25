@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":feature:tasklist"))
     implementation(project(":feature:taskdetail"))
+    implementation(project(":feature:taskform"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
