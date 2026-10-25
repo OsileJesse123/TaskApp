@@ -28,9 +28,9 @@ import javax.inject.Inject
 /**
  * State and one-shot events for the task list.
  *
- * @param observeTasks loads tasks for the debounced search and the creation day.
+ * @param observeTasks loads tasks for the debounced search and the creation-date range.
  * @param deleteTasks deletes the confirmed selection.
- * @param dateFormatter formats creation times and the selected filter day.
+ * @param dateFormatter formats creation times and the selected filter range.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -40,7 +40,7 @@ class TaskListViewModel @Inject constructor(
     private val dateFormatter: TaskDateFormatter,
 ) : ViewModel() {
     private val query = MutableStateFlow("")
-    private val createdOnUtcMillis = MutableStateFlow<Long?>(null)
+    private val dateRange = MutableStateFlow(DateRangeFilter())
     private val selectedIds = MutableStateFlow<Set<Long>>(emptySet())
     private val showDeleteConfirmation = MutableStateFlow(false)
 
@@ -56,24 +56,48 @@ class TaskListViewModel @Inject constructor(
     private var deleteInFlight: Boolean = false
 
     /**
+     * Database results for the settled search. Kept off the typed [query] so the search field can
+     * update on each keystroke without waiting for Room.
+     */
+    private val observedList = combine(
+        query.debounce { value -> if (value.isBlank()) 0L else SEARCH_DEBOUNCE_MILLIS },
+        dateRange,
+    ) { debounced, range ->
+        ObservedListInputs(debounced, range)
+    }.flatMapLatest { inputs ->
+        observeTasks(
+            inputs.debouncedQuery,
+            inputs.dateRange.fromUtcMillis,
+            inputs.dateRange.toUtcMillis,
+            ZoneId.systemDefault(),
+        )
+            .map { tasks -> inputs.toObservedList(tasks) }
+            .catch {
+                _events.emit(TaskListEvent.ShowLoadError)
+                emit(inputs.toObservedList(tasks = null))
+            }
+    }
+
+    /**
      * Latest list state. Collection stops five seconds after the screen leaves composition.
+     *
+     * Typed search is combined here directly so [TaskListUiState.query] matches the field as the
+     * user types. The body still follows [observedList].
      */
     val uiState: StateFlow<TaskListUiState> = combine(
         query,
-        query.debounce { value -> if (value.isBlank()) 0L else SEARCH_DEBOUNCE_MILLIS },
-        createdOnUtcMillis,
+        dateRange,
         selectedIds,
         showDeleteConfirmation,
-    ) { typed, debounced, createdOn, selected, confirm ->
-        ListInputs(typed, debounced, createdOn, selected, confirm)
-    }.flatMapLatest { inputs ->
-        observeTasks(inputs.debouncedQuery, inputs.createdOnUtcMillis, ZoneId.systemDefault())
-            .map { tasks -> inputs.toState(tasks) }
-            .catch {
-                // Keep a steady unavailable body. The snackbar is only the first announcement.
-                _events.emit(TaskListEvent.ShowLoadError)
-                emit(inputs.toState(tasks = null))
-            }
+        observedList,
+    ) { typed, range, selected, confirm, observed ->
+        toState(
+            typedQuery = typed,
+            dateRange = range,
+            selectedIds = selected,
+            showDeleteConfirmation = confirm,
+            observed = observed,
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
@@ -91,20 +115,21 @@ class TaskListViewModel @Inject constructor(
     }
 
     /**
-     * Filters the list to the creation day chosen in the date picker.
+     * Filters the list to tasks created on a day in the chosen range, inclusive of both ends.
      *
-     * @param utcMillis UTC midnight reported by the Material date picker.
+     * @param fromUtcMillis UTC midnight of the first selected day.
+     * @param toUtcMillis UTC midnight of the last selected day.
      */
-    fun onCreationDateSelected(utcMillis: Long) {
-        createdOnUtcMillis.value = utcMillis
+    fun onCreationRangeSelected(fromUtcMillis: Long, toUtcMillis: Long) {
+        dateRange.value = DateRangeFilter(fromUtcMillis, toUtcMillis)
         clearSelection()
     }
 
     /**
-     * Removes the creation-day filter.
+     * Removes the creation-date range filter.
      */
     fun onCreationDateCleared() {
-        createdOnUtcMillis.value = null
+        dateRange.value = DateRangeFilter()
         clearSelection()
     }
 
@@ -189,19 +214,28 @@ class TaskListViewModel @Inject constructor(
     /**
      * Maps the latest inputs and rows into render state.
      *
-     * @param tasks matching tasks, or null when the stream failed.
+     * @param typedQuery search field text, including characters not yet queried.
+     * @param dateRange selected creation-date range, or empty.
+     * @param selectedIds ids the user has selected.
+     * @param showDeleteConfirmation whether the confirm dialog was requested.
+     * @param observed latest database result for the settled search.
      * @return the state the screen should render.
      */
-    private fun ListInputs.toState(tasks: List<Task>?): TaskListUiState {
-        val label = createdOnUtcMillis?.let(dateFormatter::formatPickerDate)
-        if (tasks == null) {
-            return TaskListUiState(
-                query = typedQuery,
-                createdOnUtcMillis = createdOnUtcMillis,
-                createdOnLabel = label,
-                content = TaskListContent.Unavailable,
-            )
-        }
+    private fun toState(
+        typedQuery: String,
+        dateRange: DateRangeFilter,
+        selectedIds: Set<Long>,
+        showDeleteConfirmation: Boolean,
+        observed: ObservedList,
+    ): TaskListUiState {
+        val label = dateRange.label()
+        val tasks = observed.tasks ?: return TaskListUiState(
+            query = typedQuery,
+            createdFromUtcMillis = dateRange.fromUtcMillis,
+            createdToUtcMillis = dateRange.toUtcMillis,
+            createdOnLabel = label,
+            content = TaskListContent.Unavailable,
+        )
         val visibleIds = tasks.map(Task::id).toSet()
         val visibleSelected = selectedIds.intersect(visibleIds)
         val items = tasks.map { task ->
@@ -214,14 +248,15 @@ class TaskListViewModel @Inject constructor(
             )
         }
         val content = when {
-            tasks.isEmpty() && debouncedQuery.isBlank() && createdOnUtcMillis == null ->
+            tasks.isEmpty() && observed.debouncedQuery.isBlank() && dateRange.isEmpty() ->
                 TaskListContent.Empty
             tasks.isEmpty() -> TaskListContent.NoResults
             else -> TaskListContent.Tasks(items)
         }
         return TaskListUiState(
             query = typedQuery,
-            createdOnUtcMillis = createdOnUtcMillis,
+            createdFromUtcMillis = dateRange.fromUtcMillis,
+            createdToUtcMillis = dateRange.toUtcMillis,
             createdOnLabel = label,
             selectionMode = visibleSelected.isNotEmpty(),
             selectedCount = visibleSelected.size,
@@ -231,20 +266,64 @@ class TaskListViewModel @Inject constructor(
     }
 
     /**
-     * Values that define one list query and the chrome around it.
-     *
-     * @property typedQuery search field text before debounce.
-     * @property debouncedQuery search text sent to the database.
-     * @property createdOnUtcMillis selected creation day, or null.
-     * @property selectedIds ids the user has selected.
-     * @property showDeleteConfirmation whether the confirm dialog was requested.
+     * @return formatted range for the filter row, or null when no range is set.
      */
-    private data class ListInputs(
-        val typedQuery: String,
+    private fun DateRangeFilter.label(): String? {
+        val from = fromUtcMillis
+        val to = toUtcMillis
+        if (from == null || to == null) {
+            return null
+        }
+        return dateFormatter.formatPickerDateRange(from, to)
+    }
+
+    /**
+     * Search and range that produced one [ObservedList].
+     *
+     * @property debouncedQuery search text sent to the database.
+     * @property dateRange selected creation-date range.
+     */
+    private data class ObservedListInputs(
         val debouncedQuery: String,
-        val createdOnUtcMillis: Long?,
-        val selectedIds: Set<Long>,
-        val showDeleteConfirmation: Boolean,
+        val dateRange: DateRangeFilter,
+    )
+
+    /**
+     * UTC picker days chosen for the creation filter.
+     *
+     * @property fromUtcMillis first day, or null.
+     * @property toUtcMillis last day, or null.
+     */
+    private data class DateRangeFilter(
+        val fromUtcMillis: Long? = null,
+        val toUtcMillis: Long? = null,
+    ) {
+        /**
+         * @return true when no range is applied.
+         */
+        fun isEmpty(): Boolean = fromUtcMillis == null && toUtcMillis == null
+    }
+
+    /**
+     * @param tasks matching tasks, or null when the stream failed.
+     * @return database result for these inputs.
+     */
+    private fun ObservedListInputs.toObservedList(tasks: List<Task>?): ObservedList {
+        return ObservedList(
+            debouncedQuery = debouncedQuery,
+            tasks = tasks,
+        )
+    }
+
+    /**
+     * Latest rows for the settled search.
+     *
+     * @property debouncedQuery search text that produced [tasks].
+     * @property tasks matching tasks, or null when the stream failed.
+     */
+    private data class ObservedList(
+        val debouncedQuery: String,
+        val tasks: List<Task>?,
     )
 
     private companion object {

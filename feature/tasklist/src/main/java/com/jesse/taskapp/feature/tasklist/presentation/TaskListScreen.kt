@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -19,7 +19,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,14 +39,14 @@ import com.jesse.taskapp.ui.TaskAppTheme
 /**
  * Task list that does not read a ViewModel or a navigation controller.
  *
- * The date-picker dialog is local UI. The selected day itself comes from [state], because that
+ * The date-range dialog is local UI. The selected range itself comes from [state], because that
  * is what the list is filtered by.
  *
  * @param state rendered list state.
  * @param snackbarHostState host for one-shot messages collected by the route.
  * @param onQueryChange called with the new search text.
- * @param onCreationDateSelected called with the picker UTC midnight.
- * @param onCreationDateCleared called when the user clears the day filter.
+ * @param onCreationRangeSelected called with the picker UTC midnights for the first and last day.
+ * @param onCreationDateCleared called when the user clears the date range.
  * @param onTaskClick called with a task id when the user opens it.
  * @param onStartSelection called with a task id on long press.
  * @param onToggleSelected called with a task id while selection mode is on.
@@ -63,7 +63,7 @@ fun TaskListScreen(
     state: TaskListUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onQueryChange: (String) -> Unit = {},
-    onCreationDateSelected: (Long) -> Unit = {},
+    onCreationRangeSelected: (Long, Long) -> Unit = { _, _ -> },
     onCreationDateCleared: () -> Unit = {},
     onTaskClick: (Long) -> Unit = {},
     onStartSelection: (Long) -> Unit = {},
@@ -134,17 +134,24 @@ fun TaskListScreen(
         }
     }
     if (showDatePicker) {
-        val pickerState = rememberDatePickerState(
-            initialSelectedDateMillis = state.createdOnUtcMillis,
+        val pickerState = rememberDateRangePickerState(
+            initialSelectedStartDateMillis = state.createdFromUtcMillis,
+            initialSelectedEndDateMillis = state.createdToUtcMillis,
         )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        pickerState.selectedDateMillis?.let(onCreationDateSelected)
+                        val start = pickerState.selectedStartDateMillis
+                        val end = pickerState.selectedEndDateMillis
+                        if (start != null && end != null) {
+                            onCreationRangeSelected(start, end)
+                        }
                         showDatePicker = false
                     },
+                    enabled = pickerState.selectedStartDateMillis != null &&
+                        pickerState.selectedEndDateMillis != null,
                 ) {
                     Text(stringResource(R.string.task_ok))
                 }
@@ -155,7 +162,7 @@ fun TaskListScreen(
                 }
             },
         ) {
-            DatePicker(state = pickerState)
+            DateRangePicker(state = pickerState)
         }
     }
     if (state.showDeleteConfirmation) {
@@ -203,7 +210,7 @@ private fun TaskListScreenEmptyPreview() {
 }
 
 /**
- * Preview of [TaskListScreen] when a search or date matches nothing.
+ * Preview of [TaskListScreen] when a search or date range matches nothing.
  */
 @Preview(showBackground = true, name = "No results")
 @Composable
@@ -212,8 +219,9 @@ private fun TaskListScreenNoResultsPreview() {
         TaskListScreen(
             state = TaskListUiState(
                 query = "milk",
-                createdOnUtcMillis = 1_760_659_200_000,
-                createdOnLabel = "17 Oct 2026",
+                createdFromUtcMillis = 1_760_659_200_000,
+                createdToUtcMillis = 1_760_832_000_000,
+                createdOnLabel = "17 Oct 2026 – 19 Oct 2026",
                 content = TaskListContent.NoResults,
             ),
         )

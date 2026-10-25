@@ -20,6 +20,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    buildFeatures {
+        compose = true
+    }
     testFixtures {
         enable = true
     }
@@ -28,9 +31,7 @@ android {
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -43,14 +44,15 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(platform(libs.androidx.compose.bom))
 
     androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 
     testFixturesImplementation(libs.junit)
     testFixturesImplementation(libs.kotlinx.coroutines.test)
     testFixturesImplementation(platform(libs.androidx.compose.bom))
     testFixturesImplementation(libs.androidx.compose.runtime)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }

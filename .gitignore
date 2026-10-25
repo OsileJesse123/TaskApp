@@ -16,3 +16,5 @@ local.properties
 /.idea/gradle.xml
 /.idea/androidTestResultsUserPreferences.xml
 /.idea/deploymentTargetSelector.xml
+.idea
+.kotlin/errors/errors-1792955962898.log

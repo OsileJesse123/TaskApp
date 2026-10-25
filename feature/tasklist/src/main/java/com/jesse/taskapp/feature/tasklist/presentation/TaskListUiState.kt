@@ -56,8 +56,9 @@ sealed interface TaskListContent {
  * rotation. Snackbar failures are [TaskListEvent]s, which are not replayed.
  *
  * @property query text currently in the search field, including characters not yet debounced.
- * @property createdOnUtcMillis UTC midnight of the selected creation day, or null.
- * @property createdOnLabel formatted creation day, or null when no day is selected.
+ * @property createdFromUtcMillis UTC midnight of the first selected creation day, or null.
+ * @property createdToUtcMillis UTC midnight of the last selected creation day, or null.
+ * @property createdOnLabel formatted creation range, or null when no range is selected.
  * @property selectionMode true when at least one visible row is selected.
  * @property selectedCount number of visible selected rows.
  * @property showDeleteConfirmation true while the bulk-delete dialog is open.
@@ -65,7 +66,8 @@ sealed interface TaskListContent {
  */
 data class TaskListUiState(
     val query: String = "",
-    val createdOnUtcMillis: Long? = null,
+    val createdFromUtcMillis: Long? = null,
+    val createdToUtcMillis: Long? = null,
     val createdOnLabel: String? = null,
     val selectionMode: Boolean = false,
     val selectedCount: Int = 0,

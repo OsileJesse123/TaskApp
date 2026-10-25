@@ -41,7 +41,7 @@ fun TaskListRoute(
         state = state,
         snackbarHostState = snackbarHostState,
         onQueryChange = viewModel::onQueryChange,
-        onCreationDateSelected = viewModel::onCreationDateSelected,
+        onCreationRangeSelected = viewModel::onCreationRangeSelected,
         onCreationDateCleared = viewModel::onCreationDateCleared,
         onTaskClick = onOpenTask,
         onStartSelection = viewModel::onStartSelection,
