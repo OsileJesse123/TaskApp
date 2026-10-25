@@ -13,8 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -55,8 +54,8 @@ class TaskDetailViewModelTest {
         viewModel.uiState.test {
             advanceUntilIdle()
             val state = expectMostRecentItem() as TaskDetailUiState.Content
-            assertEquals("Buy milk", state.title)
-            assertEquals("Oat", state.description)
+            Assert.assertEquals("Buy milk", state.title)
+            Assert.assertEquals("Oat", state.description)
         }
     }
 
@@ -69,7 +68,7 @@ class TaskDetailViewModelTest {
 
         viewModel.uiState.test {
             advanceUntilIdle()
-            assertEquals(TaskDetailUiState.NotFound, expectMostRecentItem())
+            Assert.assertEquals(TaskDetailUiState.NotFound, expectMostRecentItem())
         }
     }
 
@@ -77,22 +76,23 @@ class TaskDetailViewModelTest {
      * When delete succeeds, then the route is asked to leave once.
      */
     @Test
-    fun whenDeleteSucceeds_thenDeletedEventIsEmittedOnce() = runTest(mainDispatcherRule.dispatcher) {
-        repository.setTasks(listOf(sampleTask(3)))
-        val viewModel = viewModel(3)
-        backgroundScope.launch { viewModel.uiState.collect { } }
-        advanceUntilIdle()
-
-        viewModel.events.test {
-            viewModel.onConfirmDelete()
+    fun whenDeleteSucceeds_thenDeletedEventIsEmittedOnce() =
+        runTest(mainDispatcherRule.dispatcher) {
+            repository.setTasks(listOf(sampleTask(3)))
+            val viewModel = viewModel(3)
+            backgroundScope.launch { viewModel.uiState.collect { } }
             advanceUntilIdle()
-            assertEquals(TaskDetailEvent.TaskDeleted, awaitItem())
+
+            viewModel.events.test {
+                viewModel.onConfirmDelete()
+                advanceUntilIdle()
+                Assert.assertEquals(TaskDetailEvent.TaskDeleted, awaitItem())
+            }
+            viewModel.events.test {
+                expectNoEvents()
+            }
+            Assert.assertEquals(listOf(setOf(3L)), repository.deletedIds)
         }
-        viewModel.events.test {
-            expectNoEvents()
-        }
-        assertEquals(listOf(setOf(3L)), repository.deletedIds)
-    }
 
     /**
      * When delete fails, then the error is not replayed to the next collector.
@@ -108,7 +108,7 @@ class TaskDetailViewModelTest {
         viewModel.events.test {
             viewModel.onConfirmDelete()
             advanceUntilIdle()
-            assertEquals(TaskDetailEvent.ShowDeleteError, awaitItem())
+            Assert.assertEquals(TaskDetailEvent.ShowDeleteError, awaitItem())
         }
         viewModel.events.test {
             expectNoEvents()
@@ -129,7 +129,7 @@ class TaskDetailViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as TaskDetailUiState.Content
-        assertTrue(state.showDeleteConfirmation)
+        Assert.assertTrue(state.showDeleteConfirmation)
     }
 
     /**
@@ -143,8 +143,8 @@ class TaskDetailViewModelTest {
 
         viewModel.events.test {
             advanceUntilIdle()
-            assertEquals(TaskDetailEvent.ShowLoadError, awaitItem())
+            Assert.assertEquals(TaskDetailEvent.ShowLoadError, awaitItem())
         }
-        assertEquals(TaskDetailUiState.LoadFailed, viewModel.uiState.value)
+        Assert.assertEquals(TaskDetailUiState.LoadFailed, viewModel.uiState.value)
     }
 }

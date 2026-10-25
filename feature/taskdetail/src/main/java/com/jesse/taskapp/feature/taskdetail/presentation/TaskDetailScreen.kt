@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.jesse.taskapp.R
+import com.jesse.taskapp.feature.taskdetail.R
 import com.jesse.taskapp.feature.taskdetail.presentation.components.TaskDetailContent
 import com.jesse.taskapp.feature.taskdetail.presentation.components.TaskDetailStatus
 import com.jesse.taskapp.ui.TaskAppTheme

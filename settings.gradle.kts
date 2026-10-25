@@ -26,3 +26,4 @@ rootProject.name = "TaskApp"
 include(":app")
 include(":core")
 include(":feature:tasklist")
+include(":feature:taskdetail")

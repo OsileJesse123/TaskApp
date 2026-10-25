@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.jesse.taskapp.ui.TaskAppTheme
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -57,7 +57,7 @@ class TaskDetailScreenTest {
         composeRule.onNodeWithText("17 Oct 2026, 09:15").assertIsDisplayed()
         composeRule.onNodeWithTag(TaskDetailTags.EDIT).performClick()
 
-        assertTrue(edited)
+        Assert.assertTrue(edited)
     }
 
     /**
