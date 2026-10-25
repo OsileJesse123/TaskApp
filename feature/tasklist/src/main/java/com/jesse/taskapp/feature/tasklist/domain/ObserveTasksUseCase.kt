@@ -15,21 +15,27 @@ class ObserveTasksUseCase @Inject constructor(
     private val repository: TaskRepository,
 ) {
     /**
-     * Observes tasks matching [query] and, when set, the creation day of [createdOnUtcMillis].
+     * Observes tasks matching [query] and, when both bounds are set, the creation-date range.
      *
      * @param query raw search field text. Blank and surrounding spaces are ignored.
-     * @param createdOnUtcMillis UTC midnight from the date picker, or null when no day is selected.
-     * @param zone zone used to turn the picker day into a millis window.
+     * @param createdFromUtcMillis UTC midnight of the first selected day, or null when no range is set.
+     * @param createdToUtcMillis UTC midnight of the last selected day, or null when no range is set.
+     * @param zone zone used to turn picker days into a millis window.
      * @return matching tasks, newest first.
      */
     operator fun invoke(
         query: String,
-        createdOnUtcMillis: Long?,
+        createdFromUtcMillis: Long?,
+        createdToUtcMillis: Long?,
         zone: ZoneId,
     ): Flow<List<Task>> {
         // Trim so " milk " searches for "milk". An empty result means no text filter.
         val normalized = query.trim()
-        val window = createdOnUtcMillis?.let { creationDayWindow(it, zone) }
+        val window = if (createdFromUtcMillis != null && createdToUtcMillis != null) {
+            creationDateRangeWindow(createdFromUtcMillis, createdToUtcMillis, zone)
+        } else {
+            null
+        }
         return repository.observeTasks(
             query = normalized,
             createdFromMillis = window?.startMillisInclusive,

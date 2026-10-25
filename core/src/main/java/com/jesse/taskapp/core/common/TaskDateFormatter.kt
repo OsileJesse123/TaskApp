@@ -50,4 +50,27 @@ class TaskDateFormatter @Inject constructor() {
         val formatter = DateTimeFormatter.ofPattern("d MMM yyyy", locale)
         return formatter.format(date)
     }
+
+    /**
+     * Formats a creation-date range from the date-range picker.
+     *
+     * A single selected day is shown as one date. A span is shown as two picker days.
+     *
+     * @param startDateUtcMillis UTC midnight of the first selected day.
+     * @param endDateUtcMillis UTC midnight of the last selected day.
+     * @param locale locale used for the month name. Defaults to the device locale.
+     * @return one date, or "start – end".
+     */
+    fun formatPickerDateRange(
+        startDateUtcMillis: Long,
+        endDateUtcMillis: Long,
+        locale: Locale = Locale.getDefault(),
+    ): String {
+        val start = formatPickerDate(startDateUtcMillis, locale)
+        if (startDateUtcMillis == endDateUtcMillis) {
+            return start
+        }
+        val end = formatPickerDate(endDateUtcMillis, locale)
+        return "$start – $end"
+    }
 }

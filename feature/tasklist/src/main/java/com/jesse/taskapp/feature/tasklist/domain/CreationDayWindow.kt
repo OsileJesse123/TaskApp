@@ -33,3 +33,27 @@ fun creationDayWindow(selectedDateUtcMillis: Long, zone: ZoneId): CreationDayWin
     val end = date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
     return CreationDayWindow(start, end)
 }
+
+/**
+ * Turns the start and end days from the date-range picker into one local millis window.
+ *
+ * Each bound is a UTC midnight from Material 3. The window starts at local midnight of the first
+ * day and ends at local midnight of the day after the last day, so the last day is included.
+ *
+ * @param startDateUtcMillis UTC midnight of the first selected day.
+ * @param endDateUtcMillis UTC midnight of the last selected day.
+ * @param zone zone whose midnight bounds should be used.
+ * @return the inclusive-start, exclusive-end window covering every local day in the range.
+ */
+fun creationDateRangeWindow(
+    startDateUtcMillis: Long,
+    endDateUtcMillis: Long,
+    zone: ZoneId,
+): CreationDayWindow {
+    val start = creationDayWindow(startDateUtcMillis, zone)
+    val end = creationDayWindow(endDateUtcMillis, zone)
+    return CreationDayWindow(
+        startMillisInclusive = start.startMillisInclusive,
+        endMillisExclusive = end.endMillisExclusive,
+    )
+}

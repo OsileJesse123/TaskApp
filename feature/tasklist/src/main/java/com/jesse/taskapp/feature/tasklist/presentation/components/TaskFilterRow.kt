@@ -16,11 +16,11 @@ import com.jesse.taskapp.feature.tasklist.presentation.TaskListTags
 import com.jesse.taskapp.ui.TaskAppTheme
 
 /**
- * Creation-date filter control.
+ * Creation-date range filter control.
  *
- * @param createdOnLabel formatted selected day, or null when the list is unfiltered.
- * @param onOpenPicker called when the user wants to pick a day.
- * @param onClear called when the user clears the day.
+ * @param createdOnLabel formatted selected range, or null when the list is unfiltered.
+ * @param onOpenPicker called when the user wants to pick a range.
+ * @param onClear called when the user clears the range.
  */
 @Composable
 fun TaskFilterRow(
@@ -67,12 +67,12 @@ private fun TaskFilterRowEmptyPreview() {
 }
 
 /**
- * Preview of [TaskFilterRow] with a creation day selected.
+ * Preview of [TaskFilterRow] with a creation range selected.
  */
 @Preview(showBackground = true, name = "Date selected")
 @Composable
 private fun TaskFilterRowSelectedPreview() {
     TaskAppTheme {
-        TaskFilterRow(createdOnLabel = "17 Oct 2026", onOpenPicker = {}, onClear = {})
+        TaskFilterRow(createdOnLabel = "17 Oct 2026 – 19 Oct 2026", onOpenPicker = {}, onClear = {})
     }
 }

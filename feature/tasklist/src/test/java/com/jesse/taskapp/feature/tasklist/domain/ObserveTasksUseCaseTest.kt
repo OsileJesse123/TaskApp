@@ -23,7 +23,12 @@ class ObserveTasksUseCaseTest {
      */
     @Test
     fun whenQueryHasSpaces_thenRepositoryReceivesTrimmedText() = runTest {
-        useCase("  milk  ", createdOnUtcMillis = null, zone = ZoneId.of("UTC")).first()
+        useCase(
+            "  milk  ",
+            createdFromUtcMillis = null,
+            createdToUtcMillis = null,
+            zone = ZoneId.of("UTC"),
+        ).first()
 
         assertEquals("milk", repository.observedQueries.single())
         assertNull(repository.observedFrom.single())
@@ -31,11 +36,11 @@ class ObserveTasksUseCaseTest {
     }
 
     /**
-     * When no creation day is selected, then both bounds are null.
+     * When no creation range is selected, then both bounds are null.
      */
     @Test
     fun whenNoDateIsSelected_thenBoundsAreOpen() = runTest {
-        useCase("", createdOnUtcMillis = null, zone = ZoneId.of("UTC")).first()
+        useCase("", createdFromUtcMillis = null, createdToUtcMillis = null, zone = ZoneId.of("UTC")).first()
 
         assertEquals("", repository.observedQueries.single())
         assertNull(repository.observedFrom.single())
@@ -43,16 +48,30 @@ class ObserveTasksUseCaseTest {
     }
 
     /**
-     * When a creation day is selected, then the repository receives that local day's bounds.
+     * When only one bound is set, then the date filter is ignored.
      */
     @Test
-    fun whenDateIsSelected_thenRepositoryReceivesThatLocalDay() = runTest {
-        val zone = ZoneId.of("UTC")
+    fun whenOnlyOneBoundIsSet_thenBoundsAreOpen() = runTest {
         val picked = LocalDate.of(2026, 10, 17).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
-        useCase("milk", picked, zone).first()
+        useCase("milk", createdFromUtcMillis = picked, createdToUtcMillis = null, zone = ZoneId.of("UTC")).first()
 
-        val expected = creationDayWindow(picked, zone)
+        assertNull(repository.observedFrom.single())
+        assertNull(repository.observedTo.single())
+    }
+
+    /**
+     * When a creation range is selected, then the repository receives that local window.
+     */
+    @Test
+    fun whenDateRangeIsSelected_thenRepositoryReceivesThatLocalWindow() = runTest {
+        val zone = ZoneId.of("UTC")
+        val start = LocalDate.of(2026, 10, 17).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val end = LocalDate.of(2026, 10, 19).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+        useCase("milk", start, end, zone).first()
+
+        val expected = creationDateRangeWindow(start, end, zone)
         assertEquals("milk", repository.observedQueries.single())
         Assert.assertEquals(expected.startMillisInclusive, repository.observedFrom.single())
         Assert.assertEquals(expected.endMillisExclusive, repository.observedTo.single())

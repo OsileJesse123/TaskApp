@@ -6,7 +6,7 @@ import com.jesse.taskapp.MainDispatcherRule
 import com.jesse.taskapp.core.common.TaskDateFormatter
 import com.jesse.taskapp.feature.tasklist.domain.DeleteTasksUseCase
 import com.jesse.taskapp.feature.tasklist.domain.ObserveTasksUseCase
-import com.jesse.taskapp.feature.tasklist.domain.creationDayWindow
+import com.jesse.taskapp.feature.tasklist.domain.creationDateRangeWindow
 import com.jesse.taskapp.sampleTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
@@ -93,6 +93,31 @@ class TaskListViewModelTest {
     }
 
     /**
+     * When the user types, then the search field text updates before the debounce queries the database.
+     */
+    @Test
+    fun whenUserTypes_thenQueryInUiStateUpdatesBeforeDebounce() = runTest(mainDispatcherRule.dispatcher) {
+        repository.setTasks(listOf(sampleTask(id = 1, title = "Buy milk")))
+        backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+        repository.observedQueries.clear()
+
+        viewModel.onQueryChange("l")
+        runCurrent()
+
+        assertEquals("l", viewModel.uiState.value.query)
+        val tasks = viewModel.uiState.value.content as TaskListContent.Tasks
+        assertEquals("Buy milk", tasks.tasks.single().title)
+        assertFalse(repository.observedQueries.contains("l"))
+
+        viewModel.onQueryChange("lh")
+        runCurrent()
+
+        assertEquals("lh", viewModel.uiState.value.query)
+        assertFalse(repository.observedQueries.contains("lh"))
+    }
+
+    /**
      * When the user types quickly, then only the settled search is sent to the repository.
      */
     @Test
@@ -116,21 +141,27 @@ class TaskListViewModelTest {
     }
 
     /**
-     * When a creation day is selected, then the repository receives that local day.
+     * When a creation range is selected, then the repository receives that local window.
      */
     @Test
-    fun whenCreationDayIsSelected_thenRepositoryReceivesThatDay() = runTest(mainDispatcherRule.dispatcher) {
+    fun whenCreationRangeIsSelected_thenRepositoryReceivesThatWindow() = runTest(mainDispatcherRule.dispatcher) {
         backgroundScope.launch { viewModel.uiState.collect { } }
         advanceUntilIdle()
-        val picked = LocalDate.of(2026, 10, 17).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val start = LocalDate.of(2026, 10, 17).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val end = LocalDate.of(2026, 10, 19).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
-        viewModel.onCreationDateSelected(picked)
+        viewModel.onCreationRangeSelected(start, end)
         advanceUntilIdle()
 
-        val expected = creationDayWindow(picked, ZoneId.systemDefault())
+        val expected = creationDateRangeWindow(start, end, ZoneId.systemDefault())
         Assert.assertEquals(expected.startMillisInclusive, repository.observedFrom.last())
         Assert.assertEquals(expected.endMillisExclusive, repository.observedTo.last())
-        assertEquals(picked, viewModel.uiState.value.createdOnUtcMillis)
+        assertEquals(start, viewModel.uiState.value.createdFromUtcMillis)
+        assertEquals(end, viewModel.uiState.value.createdToUtcMillis)
+        assertEquals(
+            TaskDateFormatter().formatPickerDateRange(start, end),
+            viewModel.uiState.value.createdOnLabel,
+        )
     }
 
     /**
