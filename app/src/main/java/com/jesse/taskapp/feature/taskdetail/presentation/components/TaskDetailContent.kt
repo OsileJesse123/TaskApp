@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.jesse.taskapp.R
 import com.jesse.taskapp.feature.taskdetail.presentation.TaskDetailTags
 import com.jesse.taskapp.feature.taskdetail.presentation.TaskDetailUiState
-import com.jesse.taskapp.ui.theme.TaskAppTheme
+import com.jesse.taskapp.ui.TaskAppTheme
 
 /**
  * Title, description, dates, and the edit action for a stored task.

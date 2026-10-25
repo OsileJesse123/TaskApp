@@ -5,7 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.jesse.taskapp.ui.theme.TaskAppTheme
+import com.jesse.taskapp.ui.TaskAppTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test

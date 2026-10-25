@@ -23,7 +23,7 @@ import com.jesse.taskapp.feature.taskform.domain.TaskInputRules
 import com.jesse.taskapp.feature.taskform.domain.TitleError
 import com.jesse.taskapp.feature.taskform.presentation.components.TaskFormFields
 import com.jesse.taskapp.feature.taskform.presentation.components.TaskFormStatus
-import com.jesse.taskapp.ui.theme.TaskAppTheme
+import com.jesse.taskapp.ui.TaskAppTheme
 
 /**
  * Create and edit form that does not read a ViewModel or a navigation controller.

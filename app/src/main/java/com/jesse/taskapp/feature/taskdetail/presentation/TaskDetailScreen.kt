@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jesse.taskapp.R
 import com.jesse.taskapp.feature.taskdetail.presentation.components.TaskDetailContent
 import com.jesse.taskapp.feature.taskdetail.presentation.components.TaskDetailStatus
-import com.jesse.taskapp.ui.theme.TaskAppTheme
+import com.jesse.taskapp.ui.TaskAppTheme
 
 /**
  * Task detail that does not read a ViewModel or a navigation controller.

@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(project(":core"))
+    implementation(project(":feature:tasklist"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
@@ -63,6 +64,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(testFixtures(project(":core")))
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

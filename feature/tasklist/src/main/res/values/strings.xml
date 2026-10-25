@@ -1,0 +1,26 @@
+<resources>
+    <string name="task_list_title">Tasks</string>
+    <string name="task_search_label">Search tasks</string>
+    <string name="task_filter_by_date">Filter by date</string>
+    <string name="task_clear_date_filter">Clear date</string>
+    <string name="task_filtered_on">Created on %1$s</string>
+    <string name="task_create">Create task</string>
+    <string name="task_empty_title">No tasks yet</string>
+    <string name="task_empty_body">Create a task to keep track of what you want to do.</string>
+    <string name="task_no_results_title">No matching tasks</string>
+    <string name="task_no_results_body">Try a different search or date.</string>
+    <string name="task_loading">Loading tasks</string>
+    <string name="task_unavailable_title">Couldn\'t load tasks</string>
+    <string name="task_unavailable_body">Check the device and try again.</string>
+    <string name="task_selected_count">%1$d selected</string>
+    <string name="task_delete">Delete</string>
+    <string name="task_cancel">Cancel</string>
+    <string name="task_delete_confirm_title">Delete tasks?</string>
+    <string name="task_delete_confirm_body">This removes the selected tasks from this device.</string>
+    <string name="task_load_error">Could not load tasks.</string>
+    <string name="task_delete_error">Could not delete the task.</string>
+    <string name="task_ok">OK</string>
+    <string name="task_close_selection">Close selection</string>
+    <string name="task_selected">Selected</string>
+    <string name="task_not_selected">Not selected</string>
+</resources>

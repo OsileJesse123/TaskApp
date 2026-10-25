@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
@@ -19,13 +20,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    testFixtures {
+        enable = true
+    }
 
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.hilt.android)
@@ -34,7 +42,12 @@ dependencies {
     ksp(libs.hilt.compiler)
 
 
-    testImplementation(libs.junit)
+    testImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+
+    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
+    testFixturesImplementation(platform(libs.androidx.compose.bom))
+    testFixturesImplementation(libs.androidx.compose.runtime)
 }

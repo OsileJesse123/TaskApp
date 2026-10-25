@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.jesse.taskapp.feature.taskform.domain.TaskInputRules
 import com.jesse.taskapp.feature.taskform.domain.TitleError
-import com.jesse.taskapp.ui.theme.TaskAppTheme
+import com.jesse.taskapp.ui.TaskAppTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

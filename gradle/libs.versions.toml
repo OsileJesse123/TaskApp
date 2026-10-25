@@ -53,6 +53,7 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "appFunctions" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
