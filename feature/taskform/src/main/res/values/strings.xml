@@ -1,0 +1,18 @@
+<resources>
+    <string name="task_not_found_title">Task not found</string>
+    <string name="task_not_found_body">It may have been deleted.</string>
+    <string name="task_load_failed_title">Couldn\'t load this task</string>
+    <string name="task_load_failed_body">Go back and try again.</string>
+    <string name="task_form_create_title">New task</string>
+    <string name="task_form_edit_title">Edit task</string>
+    <string name="task_title_label">Title</string>
+    <string name="task_description_label">Description</string>
+    <string name="task_save">Save</string>
+    <string name="task_back">Back</string>
+    <string name="task_loading_form">Loading task</string>
+    <string name="task_title_required">Title is required</string>
+    <string name="task_title_too_long">Title must be %1$d characters or fewer</string>
+    <string name="task_description_too_long">Description must be %1$d characters or fewer</string>
+    <string name="task_detail_load_error">Could not load the task.</string>
+    <string name="task_save_error">Could not save the task.</string>
+</resources>
