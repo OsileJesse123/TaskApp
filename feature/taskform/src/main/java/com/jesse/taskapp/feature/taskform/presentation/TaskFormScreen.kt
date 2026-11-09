@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jesse.taskapp.feature.taskform.R
-import com.jesse.taskapp.feature.taskform.domain.DescriptionError
-import com.jesse.taskapp.feature.taskform.domain.TaskInputRules
-import com.jesse.taskapp.feature.taskform.domain.TitleError
+import com.jesse.taskapp.core.common.DescriptionError
+import com.jesse.taskapp.core.common.TaskInputRules
+import com.jesse.taskapp.core.common.TitleError
 import com.jesse.taskapp.feature.taskform.presentation.components.TaskFormFields
 import com.jesse.taskapp.feature.taskform.presentation.components.TaskFormStatus
 import com.jesse.taskapp.ui.TaskAppTheme

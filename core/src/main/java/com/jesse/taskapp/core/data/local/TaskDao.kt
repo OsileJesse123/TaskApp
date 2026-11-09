@@ -56,6 +56,15 @@ interface TaskDao {
     suspend fun insert(task: TaskEntity): Long
 
     /**
+     * Loads the row stored for an idempotency key.
+     *
+     * @param key non-null idempotency key.
+     * @return the matching row, or null when none exists.
+     */
+    @Query("SELECT * FROM tasks WHERE idempotencyKey = :key LIMIT 1")
+    suspend fun findByIdempotencyKey(key: String): TaskEntity?
+
+    /**
      * Updates the editable columns of one row.
      *
      * @param id row to update.

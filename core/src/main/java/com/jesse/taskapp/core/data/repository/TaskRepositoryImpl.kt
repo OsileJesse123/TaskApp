@@ -1,5 +1,6 @@
 package com.jesse.taskapp.core.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.jesse.taskapp.core.data.local.TaskDao
 import com.jesse.taskapp.core.data.local.TaskEntity
 import com.jesse.taskapp.core.data.mapper.toTask
@@ -56,14 +57,32 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     /**
+     * Loads one task by idempotency key.
+     *
+     * @param idempotencyKey key stored on a prior create.
+     * @return the task, or null when the key is unused.
+     */
+    override suspend fun getByIdempotencyKey(idempotencyKey: String): Task? {
+        return withContext(ioDispatcher) {
+            taskDao.findByIdempotencyKey(idempotencyKey)?.toTask()
+        }
+    }
+
+    /**
      * Inserts a task with both timestamps set to [nowMillis].
      *
      * @param title trimmed title.
      * @param description trimmed description.
      * @param nowMillis instant for both timestamps.
-     * @return the generated id.
+     * @param idempotencyKey optional idempotency key; duplicate keys return the existing row id.
+     * @return the generated id, or the id of an existing row for the same key.
      */
-    override suspend fun create(title: String, description: String, nowMillis: Long): Long {
+    override suspend fun create(
+        title: String,
+        description: String,
+        nowMillis: Long,
+        idempotencyKey: String?,
+    ): Long {
         return withContext(ioDispatcher) {
             // Created and edited start equal. A later update changes only the edited time.
             val entity = TaskEntity(
@@ -71,8 +90,19 @@ class TaskRepositoryImpl @Inject constructor(
                 description = description,
                 createdAtMillis = nowMillis,
                 updatedAtMillis = nowMillis,
+                idempotencyKey = idempotencyKey,
             )
-            taskDao.insert(entity)
+            try {
+                taskDao.insert(entity)
+            } catch (e: SQLiteConstraintException) {
+                if (idempotencyKey != null) {
+                    val existing = taskDao.findByIdempotencyKey(idempotencyKey)
+                    if (existing != null) {
+                        return@withContext existing.id
+                    }
+                }
+                throw e
+            }
         }
     }
 

@@ -17,5 +17,6 @@ fun TaskEntity.toTask(): Task {
         description = description,
         createdAtMillis = createdAtMillis,
         updatedAtMillis = updatedAtMillis,
+        idempotencyKey = idempotencyKey,
     )
 }

@@ -39,11 +39,13 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.hilt.android)
     implementation(libs.androidx.appfunctions)
+    ksp(libs.androidx.appfunctions.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(testFixtures(project(":core")))
 
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
@@ -55,4 +57,10 @@ dependencies {
     testFixturesImplementation(libs.androidx.compose.runtime)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+configurations.configureEach {
+    if (name.startsWith("ksp") && name.contains("TestFixtures")) {
+        exclude(group = "androidx.appfunctions", module = "appfunctions-compiler")
+    }
 }

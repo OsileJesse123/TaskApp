@@ -5,8 +5,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.jesse.taskapp.feature.taskform.domain.TaskInputRules
-import com.jesse.taskapp.feature.taskform.domain.TitleError
+import com.jesse.taskapp.core.common.DescriptionError
+import com.jesse.taskapp.core.common.TaskInputRules
+import com.jesse.taskapp.core.common.TitleError
 import com.jesse.taskapp.ui.TaskAppTheme
 import org.junit.Assert
 import org.junit.Rule

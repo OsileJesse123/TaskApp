@@ -1,5 +1,6 @@
 package com.jesse.taskapp.feature.taskform.domain
 
+import com.jesse.taskapp.core.common.TaskInputRules
 import com.jesse.taskapp.core.common.TimeProvider
 import com.jesse.taskapp.core.domain.repository.TaskRepository
 import javax.inject.Inject
