@@ -8,7 +8,7 @@ import com.jesse.taskapp.FakeTimeProvider
 import com.jesse.taskapp.MainDispatcherRule
 import com.jesse.taskapp.feature.taskform.domain.CreateTaskUseCase
 import com.jesse.taskapp.feature.taskform.domain.LoadTaskUseCase
-import com.jesse.taskapp.feature.taskform.domain.TitleError
+import com.jesse.taskapp.core.common.TitleError
 import com.jesse.taskapp.feature.taskform.domain.UpdateTaskUseCase
 import com.jesse.taskapp.sampleTask
 import kotlinx.coroutines.ExperimentalCoroutinesApi

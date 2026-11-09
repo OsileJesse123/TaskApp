@@ -53,7 +53,7 @@ class TaskRepositoryImplTest {
 
         val task = repository.observeTask(id).first()
 
-        Assert.assertEquals(Task(id, "Buy milk", "Oat", 100, 100), task)
+        Assert.assertEquals(Task(id, "Buy milk", "Oat", 100, 100, idempotencyKey = null), task)
     }
 
     /**
@@ -149,5 +149,43 @@ class TaskRepositoryImplTest {
         val task = repository.observeTask(id).first()
 
         Assert.assertEquals("Keep", task?.title)
+    }
+
+    /**
+     * When the same idempotency key is used twice, then the second create returns the first id and one row exists.
+     */
+    @Test
+    fun whenSameIdempotencyKeyIsUsedTwice_thenSecondCreateReturnsFirstId() = runTest {
+        val firstId = repository.create(
+            title = "First title",
+            description = "First desc",
+            nowMillis = 100,
+            idempotencyKey = "key-1",
+        )
+        val secondId = repository.create(
+            title = "Other title",
+            description = "Other desc",
+            nowMillis = 200,
+            idempotencyKey = "key-1",
+        )
+
+        Assert.assertEquals(firstId, secondId)
+        val tasks = repository.observeTasks("", null, null).first()
+        Assert.assertEquals(1, tasks.size)
+        Assert.assertEquals("First title", tasks.single().title)
+        Assert.assertEquals("First desc", tasks.single().description)
+        Assert.assertEquals("key-1", tasks.single().idempotencyKey)
+    }
+
+    /**
+     * When idempotency key is null on two creates, then two rows are stored.
+     */
+    @Test
+    fun whenIdempotencyKeyIsNullTwice_thenTwoRowsExist() = runTest {
+        val firstId = repository.create("One", "", nowMillis = 100, idempotencyKey = null)
+        val secondId = repository.create("Two", "", nowMillis = 200, idempotencyKey = null)
+
+        Assert.assertNotEquals(firstId, secondId)
+        Assert.assertEquals(2, repository.observeTasks("", null, null).first().size)
     }
 }

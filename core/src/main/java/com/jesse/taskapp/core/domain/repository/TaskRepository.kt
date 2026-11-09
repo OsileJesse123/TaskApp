@@ -34,14 +34,28 @@ interface TaskRepository {
     fun observeTask(id: Long): Flow<Task?>
 
     /**
+     * Loads a task that was created with the given idempotency key.
+     *
+     * @param idempotencyKey non-null key previously passed to [create].
+     * @return the stored task, or null when no row uses that key.
+     */
+    suspend fun getByIdempotencyKey(idempotencyKey: String): Task?
+
+    /**
      * Inserts a task and sets both timestamps to the same instant.
      *
      * @param title already trimmed title.
      * @param description already trimmed description. May be empty.
      * @param nowMillis instant to store as both created and edited time.
-     * @return the new row id.
+     * @param idempotencyKey optional caller key; when non-null and already stored, returns the existing row id without updating fields.
+     * @return the new row id, or the id of the row that already owns [idempotencyKey].
      */
-    suspend fun create(title: String, description: String, nowMillis: Long): Long
+    suspend fun create(
+        title: String,
+        description: String,
+        nowMillis: Long,
+        idempotencyKey: String? = null,
+    ): Long
 
     /**
      * Updates the title, description, and edited time of an existing task.

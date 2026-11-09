@@ -1,7 +1,7 @@
 package com.jesse.taskapp.feature.taskform.presentation
 
-import com.jesse.taskapp.feature.taskform.domain.DescriptionError
-import com.jesse.taskapp.feature.taskform.domain.TitleError
+import com.jesse.taskapp.core.common.DescriptionError
+import com.jesse.taskapp.core.common.TitleError
 
 /**
  * Rendered state of the create and edit form.

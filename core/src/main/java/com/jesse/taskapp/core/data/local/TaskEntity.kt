@@ -14,10 +14,14 @@ import androidx.room.PrimaryKey
  * @property description stored description.
  * @property createdAtMillis creation instant in epoch millis.
  * @property updatedAtMillis last edit instant in epoch millis.
+ * @property idempotencyKey optional unique key for idempotent creates; null for form saves.
  */
 @Entity(
     tableName = "tasks",
-    indices = [Index(value = ["createdAtMillis"])],
+    indices = [
+        Index(value = ["createdAtMillis"]),
+        Index(value = ["idempotencyKey"], unique = true),
+    ],
 )
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -25,4 +29,5 @@ data class TaskEntity(
     val description: String,
     val createdAtMillis: Long,
     val updatedAtMillis: Long,
+    val idempotencyKey: String? = null,
 )

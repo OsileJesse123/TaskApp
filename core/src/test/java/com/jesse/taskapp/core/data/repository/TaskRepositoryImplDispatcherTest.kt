@@ -137,6 +137,8 @@ class TaskRepositoryImplDispatcherTest {
             return inserted.size.toLong()
         }
 
+        override suspend fun findByIdempotencyKey(key: String): TaskEntity? = null
+
         override suspend fun update(
             id: Long,
             title: String,

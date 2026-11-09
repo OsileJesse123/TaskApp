@@ -122,21 +122,47 @@ class FakeTaskRepository : TaskRepository {
     }
 
     /**
+     * Returns the stored task for [idempotencyKey].
+     *
+     * @param idempotencyKey key from a prior create.
+     * @return matching task, or null.
+     */
+    override suspend fun getByIdempotencyKey(idempotencyKey: String): Task? {
+        return tasks.value.find { it.idempotencyKey == idempotencyKey }
+    }
+
+    /**
      * Stores a new task.
      *
      * @param title trimmed title.
      * @param description trimmed description.
      * @param nowMillis both timestamps.
-     * @return the assigned id.
+     * @param idempotencyKey optional idempotency key.
+     * @return the assigned id, or the id of an existing task with the same key.
      */
-    override suspend fun create(title: String, description: String, nowMillis: Long): Long {
+    override suspend fun create(
+        title: String,
+        description: String,
+        nowMillis: Long,
+        idempotencyKey: String?,
+    ): Long {
         if (failWrites) {
             throw IOException("create failed")
         }
+        if (idempotencyKey != null) {
+            tasks.value.find { it.idempotencyKey == idempotencyKey }?.let { return it.id }
+        }
         val id = nextId++
-        val task = Task(id, title, description, nowMillis, nowMillis)
+        val task = Task(
+            id = id,
+            title = title,
+            description = description,
+            createdAtMillis = nowMillis,
+            updatedAtMillis = nowMillis,
+            idempotencyKey = idempotencyKey,
+        )
         tasks.value = tasks.value + task
-        created += CreatedTask(title, description, nowMillis)
+        created += CreatedTask(title, description, nowMillis, idempotencyKey)
         return id
     }
 
@@ -194,6 +220,7 @@ class FakeTaskRepository : TaskRepository {
         val title: String,
         val description: String,
         val nowMillis: Long,
+        val idempotencyKey: String? = null,
     )
 
     /**
