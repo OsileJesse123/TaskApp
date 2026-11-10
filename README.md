@@ -2,7 +2,9 @@
 
 TaskApp is a small Android app for creating, reading, updating, and deleting tasks on the device. The task screens and a local Room database are the playground. Gradle feature modules are used here to show a conventional Android split, not because the app is large enough to need them.
 
-App Functions work is in progress. `:core` has `BaseTaskAppFunctionService` (`getTasks` and `getTask`). A concrete service, App Function XML, and the manifest entry are not wired yet.
+App Functions expose the same task store to on-device agents. `:core` defines `BaseTaskAppFunctionService` with `getTasks`, `getTask`, and `createTask`. The KSP compiler generates `TaskAppFunctionService` and `task_app_function_service.xml`; `:app` copies those assets and registers the service in the manifest (API 36+).
+
+Form saves do not use idempotency keys. `createTask` requires a caller-generated key: the same key on retry returns the original task (lookup runs before title validation; a unique index on `idempotencyKey` also guards concurrent inserts). UI validation limits live in `:core` as `TaskInputRules`, shared with the form feature.
 
 ## Modules
 
@@ -21,8 +23,8 @@ Dependencies point toward `:core`. Features do not depend on each other. `:app` 
 
 | Module | Role |
 | --- | --- |
-| `:app` | Application, activity, `TaskNavHost`, type-safe destinations |
-| `:core` | Room, `TaskRepository`, clock, date formatting, Hilt data modules, theme, App Functions base |
+| `:app` | Application, activity, `TaskNavHost`, type-safe destinations, App Function service registration |
+| `:core` | Room, `TaskRepository`, clock, date formatting, `TaskInputRules`, `CreationDateFilter`, Hilt data modules, theme, App Functions |
 | `:feature:tasklist` | List, search, creation-date range filter, bulk delete |
 | `:feature:taskdetail` | One task by id, delete |
 | `:feature:taskform` | Create, or load by id and update |
@@ -49,7 +51,7 @@ List search text is written into UI state on each keystroke. The database query 
 
 ```
 app/            shell, navigation
-core/           data, domain, DI, theme, App Functions base
+core/           data, domain, DI, theme, App Functions (KSP assets)
 feature/
   tasklist/
   taskdetail/
@@ -65,7 +67,7 @@ Each feature module contains `domain` and `presentation`. Strings for a feature 
 - Room and Kotlin Flow
 - Hilt
 - Kotlin coroutines
-- Android App Functions (base service only)
+- Android App Functions (KSP-generated service and schema in `:core`, registered from `:app`)
 - JUnit 4, kotlinx-coroutines-test, and Turbine for unit tests
 - Compose UI test, Espresso (Compose idle), and an in-memory Room database for instrumentation tests
 
@@ -108,4 +110,4 @@ Instrumentation tests need a started emulator or a connected device:
   :app:connectedDebugAndroidTest
 ```
 
-Unit tests cover use cases, ViewModels, date formatting, and repository writes that must run on the injected dispatcher, including one-shot errors that must not replay. The Room instrumentation tests construct the repository with a test dispatcher and cover insert, update, search, the creation-time window, and bulk delete. Compose tests in each feature open that screen with state passed in, without a ViewModel. One Hilt test in `:app` creates a task through the real graph and checks that the list shows it.
+Unit tests cover use cases, ViewModels, date formatting, `createTask` on the App Function service (with fakes), and repository writes that must run on the injected dispatcher, including one-shot errors that must not replay. The Room instrumentation tests construct the repository with a test dispatcher and cover insert (including idempotent keys), update, search, the creation-time window, and bulk delete. Compose tests in each feature open that screen with state passed in, without a ViewModel. One Hilt test in `:app` creates a task through the real graph and checks that the list shows it.
