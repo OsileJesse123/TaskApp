@@ -190,6 +190,7 @@ class FakeTaskRepository : TaskRepository {
             title = title,
             description = description,
             updatedAtMillis = nowMillis,
+            version = existing.version + 1
         )
         tasks.value = current.map { if (it.id == id) updated else it }
         updates += UpdatedTask(id, title, description, nowMillis)
@@ -207,6 +208,26 @@ class FakeTaskRepository : TaskRepository {
         }
         deletedIds += ids
         tasks.value = tasks.value.filterNot { it.id in ids }
+    }
+
+    override suspend fun deleteIfVersionMatches(
+        id: Long,
+        expectedVersion: Long
+    ): Boolean {
+        if(failWrites){
+            throw IOException("delete failed")
+        }
+
+        val existing = tasks.value.find { it.id == id } ?: return false
+
+        if(existing.version != expectedVersion){
+            return false
+        }
+
+        tasks.value = tasks.value.filterNot { it.id == id }
+        deletedIds += setOf(id)
+
+        return true
     }
 
     /**

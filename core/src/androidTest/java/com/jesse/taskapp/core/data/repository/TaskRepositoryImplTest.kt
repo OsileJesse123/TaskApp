@@ -56,9 +56,10 @@ class TaskRepositoryImplTest {
         Assert.assertEquals(Task(id, "Buy milk", "Oat", 100, 100, idempotencyKey = null), task)
     }
 
+    // TODO: REMOVE THIS ONCE DETERMINED THAT IT'S NOT NEEDED
     /**
      * When a task is updated, then the created time stays and the edited time changes.
-     */
+     *//*
     @Test
     fun whenTaskIsUpdated_thenCreatedTimeStays() = runTest {
         val id = repository.create("Buy milk", "", nowMillis = 100)
@@ -70,6 +71,35 @@ class TaskRepositoryImplTest {
         Assert.assertEquals(100L, task?.createdAtMillis)
         Assert.assertEquals(250L, task?.updatedAtMillis)
         Assert.assertEquals("Buy bread", task?.title)
+    }*/
+    /**
+     * When a task is updated, then the created time stays, the edited time changes and version
+     * number increases.
+     */
+    @Test
+    fun whenTaskIsUpdated_thenCreatedTimeStaysAndVersionIncrements() = runTest {
+        // Arrange: create a task. Its initial version should be 1
+        val id = repository.create("Buy milk", "", nowMillis = 100)
+        val originalTask = repository.observeTask(id).first()
+
+        // Act: update the task
+        val updated = repository.update(
+            id = id,
+            title = "Buy bread",
+            description = "Loaf",
+            nowMillis = 250,
+        )
+
+        // Assert: the update succeeded and the task has the expected values
+        val updatedTask = repository.observeTask(id).first()
+
+        Assert.assertEquals(1L, originalTask?.version)
+        Assert.assertTrue(updated)
+        Assert.assertEquals(100L, updatedTask?.createdAtMillis)
+        Assert.assertEquals(250L, updatedTask?.updatedAtMillis)
+        Assert.assertEquals("Buy bread", updatedTask?.title)
+        Assert.assertEquals("Loaf", updatedTask?.description)
+        Assert.assertEquals(2L, updatedTask?.version)
     }
 
     /**

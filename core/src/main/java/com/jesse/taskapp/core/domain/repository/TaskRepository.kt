@@ -74,4 +74,18 @@ interface TaskRepository {
      * @param ids ids to remove. Callers should skip the database when this is empty.
      */
     suspend fun delete(ids: Set<Long>)
+
+
+    /**
+     * Deletes a task only if it still has the expected version
+     *
+     * @param id task to delete
+     * @param expectedVersion version captured when authorization was requested
+     * @return true when the task was deleted, false when it no longer exists or its version
+     * has changed
+     * */
+    suspend fun deleteIfVersionMatches(
+        id: Long,
+        expectedVersion: Long
+    ): Boolean
 }
