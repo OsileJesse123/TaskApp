@@ -146,6 +146,15 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteIfVersionMatches(
+        id: Long,
+        expectedVersion: Long
+    ): Boolean {
+        return withContext(ioDispatcher){
+            taskDao.deleteIfVersionMatches(id = id, expectedVersion = expectedVersion) > 0
+        }
+    }
+
     /**
      * Builds a LIKE pattern that treats user `%` and `_` as literal characters.
      *

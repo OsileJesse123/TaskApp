@@ -153,6 +153,8 @@ class TaskRepositoryImplDispatcherTest {
             deletedIds += ids
         }
 
+        override suspend fun deleteIfVersionMatches(id: Long, expectedVersion: Long): Int = 0
+
         data class Update(
             val id: Long,
             val title: String,

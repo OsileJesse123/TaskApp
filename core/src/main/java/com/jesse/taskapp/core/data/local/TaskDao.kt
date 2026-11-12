@@ -76,7 +76,10 @@ interface TaskDao {
     @Query(
         """
         UPDATE tasks
-        SET title = :title, description = :description, updatedAtMillis = :updatedAtMillis
+        SET title = :title,
+            description = :description,
+            updatedAtMillis = :updatedAtMillis,
+            version = version + 1
         WHERE id = :id
         """,
     )
@@ -85,6 +88,24 @@ interface TaskDao {
         title: String,
         description: String,
         updatedAtMillis: Long,
+    ): Int
+
+    /**
+     * Deletes one row only when its version still matches [expectedVersion].
+     *
+     * @param id primary key.
+     * @param expectedVersion version the caller believes is current.
+     * @return `1` when the row was removed, `0` when it was missing or its version had changed.
+     */
+    @Query(
+        """
+        DELETE FROM tasks
+        WHERE id = :id AND version = :expectedVersion
+        """,
+    )
+    suspend fun deleteIfVersionMatches(
+        id: Long,
+        expectedVersion: Long,
     ): Int
 
     /**

@@ -15,6 +15,7 @@ import androidx.room.PrimaryKey
  * @property createdAtMillis creation instant in epoch millis.
  * @property updatedAtMillis last edit instant in epoch millis.
  * @property idempotencyKey optional unique key for idempotent creates; null for form saves.
+ * @property version monotonic counter incremented on each successful update; used for optimistic concurrency.
  */
 @Entity(
     tableName = "tasks",
@@ -30,4 +31,5 @@ data class TaskEntity(
     val createdAtMillis: Long,
     val updatedAtMillis: Long,
     val idempotencyKey: String? = null,
+    val version: Long = 1,
 )
