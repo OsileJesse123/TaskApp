@@ -60,10 +60,12 @@ interface TaskRepository {
     /**
      * Updates the title, description, and edited time of an existing task.
      *
+     * A successful update also increments [Task.version] by one. Created time is left unchanged.
+     *
      * @param id task to update.
      * @param title already trimmed title.
      * @param description already trimmed description. May be empty.
-     * @param nowMillis instant to store as the edited time. Created time is left unchanged.
+     * @param nowMillis instant to store as the edited time.
      * @return true when a row was updated, false when [id] does not exist.
      */
     suspend fun update(id: Long, title: String, description: String, nowMillis: Long): Boolean
@@ -75,15 +77,13 @@ interface TaskRepository {
      */
     suspend fun delete(ids: Set<Long>)
 
-
     /**
-     * Deletes a task only if it still has the expected version
+     * Deletes a task only if it still has the expected version.
      *
-     * @param id task to delete
-     * @param expectedVersion version captured when authorization was requested
-     * @return true when the task was deleted, false when it no longer exists or its version
-     * has changed
-     * */
+     * @param id task to delete.
+     * @param expectedVersion version captured when authorization was requested.
+     * @return true when the task was deleted, false when it no longer exists or its version has changed.
+     */
     suspend fun deleteIfVersionMatches(
         id: Long,
         expectedVersion: Long

@@ -109,6 +109,8 @@ class TaskRepositoryImpl @Inject constructor(
     /**
      * Updates text and the edited time, leaving the created time as it is.
      *
+     * The DAO increments the row version in the same statement.
+     *
      * @param id row to update.
      * @param title trimmed title.
      * @param description trimmed description.
@@ -146,11 +148,18 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Deletes one task when its stored version still equals [expectedVersion].
+     *
+     * @param id task to delete.
+     * @param expectedVersion version the caller believes is current.
+     * @return true when a row was removed.
+     */
     override suspend fun deleteIfVersionMatches(
         id: Long,
-        expectedVersion: Long
+        expectedVersion: Long,
     ): Boolean {
-        return withContext(ioDispatcher){
+        return withContext(ioDispatcher) {
             taskDao.deleteIfVersionMatches(id = id, expectedVersion = expectedVersion) > 0
         }
     }
