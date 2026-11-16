@@ -65,7 +65,7 @@ interface TaskDao {
     suspend fun findByIdempotencyKey(key: String): TaskEntity?
 
     /**
-     * Updates the editable columns of one row.
+     * Updates the editable columns of one row and increments its version.
      *
      * @param id row to update.
      * @param title new title.

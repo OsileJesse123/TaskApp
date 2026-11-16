@@ -167,7 +167,7 @@ class FakeTaskRepository : TaskRepository {
     }
 
     /**
-     * Updates a stored task without changing its created time.
+     * Updates a stored task without changing its created time, and increments its version.
      *
      * @param id task to update.
      * @param title new title.
@@ -210,17 +210,24 @@ class FakeTaskRepository : TaskRepository {
         tasks.value = tasks.value.filterNot { it.id in ids }
     }
 
+    /**
+     * Removes one task when its stored version still equals [expectedVersion].
+     *
+     * @param id task to delete.
+     * @param expectedVersion version the caller believes is current.
+     * @return true when the task was removed.
+     */
     override suspend fun deleteIfVersionMatches(
         id: Long,
-        expectedVersion: Long
+        expectedVersion: Long,
     ): Boolean {
-        if(failWrites){
+        if (failWrites) {
             throw IOException("delete failed")
         }
 
         val existing = tasks.value.find { it.id == id } ?: return false
 
-        if(existing.version != expectedVersion){
+        if (existing.version != expectedVersion) {
             return false
         }
 

@@ -19,6 +19,6 @@ data class Task(
     val updatedAtMillis: Long,
     /** Caller key from an idempotent create; null when the task was saved from the form. */
     val idempotencyKey: String? = null,
-    /** Monotonically increasing version, incremented after every successful update. */
+    /** Monotonically increasing version. A successful update increases it by one. */
     val version: Long = 1L,
 )

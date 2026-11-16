@@ -56,41 +56,20 @@ class TaskRepositoryImplTest {
         Assert.assertEquals(Task(id, "Buy milk", "Oat", 100, 100, idempotencyKey = null), task)
     }
 
-    // TODO: REMOVE THIS ONCE DETERMINED THAT IT'S NOT NEEDED
     /**
-     * When a task is updated, then the created time stays and the edited time changes.
-     *//*
-    @Test
-    fun whenTaskIsUpdated_thenCreatedTimeStays() = runTest {
-        val id = repository.create("Buy milk", "", nowMillis = 100)
-
-        val updated = repository.update(id, "Buy bread", "Loaf", nowMillis = 250)
-        val task = repository.observeTask(id).first()
-
-        Assert.assertTrue(updated)
-        Assert.assertEquals(100L, task?.createdAtMillis)
-        Assert.assertEquals(250L, task?.updatedAtMillis)
-        Assert.assertEquals("Buy bread", task?.title)
-    }*/
-    /**
-     * When a task is updated, then the created time stays, the edited time changes and version
-     * number increases.
+     * When a task is updated, then the created time stays, the edited time changes, and the version increases.
      */
     @Test
     fun whenTaskIsUpdated_thenCreatedTimeStaysAndVersionIncrements() = runTest {
-        // Arrange: create a task. Its initial version should be 1
         val id = repository.create("Buy milk", "", nowMillis = 100)
         val originalTask = repository.observeTask(id).first()
 
-        // Act: update the task
         val updated = repository.update(
             id = id,
             title = "Buy bread",
             description = "Loaf",
             nowMillis = 250,
         )
-
-        // Assert: the update succeeded and the task has the expected values
         val updatedTask = repository.observeTask(id).first()
 
         Assert.assertEquals(1L, originalTask?.version)
@@ -100,6 +79,58 @@ class TaskRepositoryImplTest {
         Assert.assertEquals("Buy bread", updatedTask?.title)
         Assert.assertEquals("Loaf", updatedTask?.description)
         Assert.assertEquals(2L, updatedTask?.version)
+    }
+
+    /**
+     * When delete uses the task's current version, then the task is removed.
+     */
+    @Test
+    fun whenDeletingWithMatchingVersion_thenTaskIsDeleted() = runTest {
+        val id = repository.create(
+            "Buy Milk",
+            description = "Buy milk from store",
+            nowMillis = 100,
+        )
+        val task = repository.observeTask(id).first()
+
+        val deleted = repository.deleteIfVersionMatches(id = id, expectedVersion = task!!.version)
+
+        Assert.assertTrue(deleted)
+        Assert.assertNull(repository.observeTask(id).first())
+    }
+
+    /**
+     * When delete uses a version from before an update, then the task stays at the new version.
+     */
+    @Test
+    fun whenDeletingWithOutdatedVersion_thenTaskIsNotDeleted() = runTest {
+        val id = repository.create("Buy milk", "", nowMillis = 100)
+        repository.update(
+            id = id,
+            title = "Buy bread",
+            description = "",
+            nowMillis = 200,
+        )
+
+        val deleted = repository.deleteIfVersionMatches(
+            id = id,
+            expectedVersion = 1L,
+        )
+        val task = repository.observeTask(id).first()
+
+        Assert.assertFalse(deleted)
+        Assert.assertNotNull(task)
+        Assert.assertEquals(2L, task?.version)
+    }
+
+    /**
+     * When delete is called for an id that was never stored, then it returns false.
+     */
+    @Test
+    fun whenDeletingMissingId_thenDeleteReturnsFalse() = runTest {
+        val deleted = repository.deleteIfVersionMatches(id = 44, expectedVersion = 1L)
+
+        Assert.assertFalse(deleted)
     }
 
     /**
