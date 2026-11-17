@@ -1,7 +1,7 @@
 package com.jesse.taskapp.core.data.repository
 
-import com.jesse.taskapp.core.data.local.TaskDao
-import com.jesse.taskapp.core.data.local.TaskEntity
+import com.jesse.taskapp.core.data.local.dao.TaskDao
+import com.jesse.taskapp.core.data.local.entity.TaskEntity
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow

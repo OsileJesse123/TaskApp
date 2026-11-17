@@ -12,9 +12,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.jesse.taskapp.core.data.local.dao.TaskDao
+import com.jesse.taskapp.core.data.local.entity.TaskEntity
 
 /**
- * Room-backed tests for [TaskDao] version and optimistic delete behavior.
+ * Room-backed tests for [com.jesse.taskapp.core.data.local.dao.TaskDao] version and optimistic delete behavior.
  */
 @RunWith(AndroidJUnit4::class)
 class TaskDaoTest {

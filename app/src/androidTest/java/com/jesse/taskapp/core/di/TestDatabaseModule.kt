@@ -2,7 +2,7 @@ package com.jesse.taskapp.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.jesse.taskapp.core.data.local.TaskDao
+import com.jesse.taskapp.core.data.local.dao.TaskDao
 import com.jesse.taskapp.core.data.local.TaskDatabase
 import dagger.Module
 import dagger.Provides

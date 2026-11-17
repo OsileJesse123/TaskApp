@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.jesse.taskapp.core.data.local.MIGRATION_1_2
 import com.jesse.taskapp.core.data.local.MIGRATION_2_3
-import com.jesse.taskapp.core.data.local.TaskDao
+import com.jesse.taskapp.core.data.local.MIGRATION_3_4
+import com.jesse.taskapp.core.data.local.dao.TaskDao
 import com.jesse.taskapp.core.data.local.TaskDatabase
 import dagger.Module
 import dagger.Provides
@@ -37,7 +38,7 @@ object DatabaseModule {
             context,
             TaskDatabase::class.java,
             DATABASE_NAME,
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
     }
 
     /**

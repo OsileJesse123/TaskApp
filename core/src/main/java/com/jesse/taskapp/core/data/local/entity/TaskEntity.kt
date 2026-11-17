@@ -1,4 +1,4 @@
-package com.jesse.taskapp.core.data.local
+package com.jesse.taskapp.core.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.Index
