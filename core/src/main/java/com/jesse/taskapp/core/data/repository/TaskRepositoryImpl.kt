@@ -1,8 +1,8 @@
 package com.jesse.taskapp.core.data.repository
 
 import android.database.sqlite.SQLiteConstraintException
-import com.jesse.taskapp.core.data.local.TaskDao
-import com.jesse.taskapp.core.data.local.TaskEntity
+import com.jesse.taskapp.core.data.local.dao.TaskDao
+import com.jesse.taskapp.core.data.local.entity.TaskEntity
 import com.jesse.taskapp.core.data.mapper.toTask
 import com.jesse.taskapp.core.di.Dispatcher
 import com.jesse.taskapp.core.di.TaskAppDispatchers

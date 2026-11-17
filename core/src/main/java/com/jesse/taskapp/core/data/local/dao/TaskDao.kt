@@ -1,8 +1,9 @@
-package com.jesse.taskapp.core.data.local
+package com.jesse.taskapp.core.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.jesse.taskapp.core.data.local.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
 /**

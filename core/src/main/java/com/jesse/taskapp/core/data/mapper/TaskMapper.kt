@@ -1,6 +1,6 @@
 package com.jesse.taskapp.core.data.mapper
 
-import com.jesse.taskapp.core.data.local.TaskEntity
+import com.jesse.taskapp.core.data.local.entity.TaskEntity
 import com.jesse.taskapp.core.domain.model.Task
 
 /**

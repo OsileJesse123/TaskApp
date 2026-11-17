@@ -2,13 +2,17 @@ package com.jesse.taskapp.core.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.jesse.taskapp.core.data.local.dao.PendingOperationDao
+import com.jesse.taskapp.core.data.local.dao.TaskDao
+import com.jesse.taskapp.core.data.local.entity.PendingOperationEntity
+import com.jesse.taskapp.core.data.local.entity.TaskEntity
 
 /**
  * Local database that stores tasks.
  */
 @Database(
-    entities = [TaskEntity::class],
-    version = 3,
+    entities = [TaskEntity::class, PendingOperationEntity::class],
+    version = 4,
     exportSchema = true,
 )
 abstract class TaskDatabase : RoomDatabase() {
@@ -18,4 +22,6 @@ abstract class TaskDatabase : RoomDatabase() {
      * @return DAO used by [com.jesse.taskapp.core.data.repository.TaskRepositoryImpl].
      */
     abstract fun taskDao(): TaskDao
+
+    abstract fun pendingOperationDao(): PendingOperationDao
 }
