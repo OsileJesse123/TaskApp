@@ -2,9 +2,7 @@ package com.jesse.taskapp.core.data.local
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
-import android.content.Context
 import androidx.room.testing.MigrationTestHelper
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -13,9 +11,6 @@ import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
 class TaskDatabaseMigrationTest {
-
-    private val context: Context =
-        ApplicationProvider.getApplicationContext()
 
     @get:Rule
     val helper = MigrationTestHelper(

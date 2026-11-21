@@ -30,6 +30,9 @@ android {
     testFixtures {
         enable = true
     }
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
 
 }
 
